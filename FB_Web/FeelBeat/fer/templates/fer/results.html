@@ -1,0 +1,49 @@
+{% extends 'User/base.html' %}
+{% block content %}
+
+<body>
+    <div class="container min-vh-100">
+        <div class="row my-5">
+            <div class="col-sm-7">
+                <div class="bg-black rounded-4">
+                    <video id="video" style="width:100%; height: 400px;" width="100%" height="400"></video>
+                    <canvas id="canvas" style="display:none;" width="640" height="400"></canvas>
+                </div>
+                <a href="{% url 'upload_and_process' %}" class="btn btn-primary px-5 py-3 rounded-pill mt-3 shadow">Try
+                    Another Image</a>
+            </div>
+            <div class="col-sm-5">
+                <h3> Detected emotion: <span class="badge text-bg-primary">{{ emotion }}</span></h3>
+                <h4 class="fw-normal mt-4">Recommeded songs:</h4>
+                <ul class="list-group mt-3">
+                    {% for song in recommended_songs %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">{{ song.track_name }}</div>
+                            -by {{ song.artist_name }}
+                        </div>
+                    </li>
+                    {% empty %}
+                    <li>No songs found for the detected emotion.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        var video = document.getElementById('video');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var captureButton = document.getElementById('capture');
+        var imageDataInput = document.getElementById('image_data');
+        var form = document.getElementById('imageForm');
+        var loadingBtn = document.getElementById('loading');
+
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+            video.srcObject = stream;
+            video.play();
+        });
+
+    </script>
+</body>
+{% endblock %}

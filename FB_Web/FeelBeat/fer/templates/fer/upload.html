@@ -1,0 +1,82 @@
+{% extends 'User/base.html' %}
+{% block content %}
+
+<body>
+    <div class="container min-vh-100">
+        <div class="row vh-100 align-items-center">
+            <div class="col-sm-7">
+                <div class="bg-black rounded-4">
+                    <video id="video" style="width:100%; height: 400px;" autoplay></video>
+                    <canvas id="canvas" style="display:none;" width="640" height="400"></canvas>
+                </div>
+            </div>
+            <div class="col-sm-5">
+                <h2 class="fw-bold">Explore Your Emotions with FeelBeat</h2>
+                <p class="text-secondary mb-3">Experience personalized music playlists crafted to match your emotions, captured seamlessly through our real-time facial recognition technology.</p>
+                <form method="POST" action="{% url 'upload_and_process' %}" id="imageForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="image_data" id="image_data">
+
+                    <!-- Activity selection dropdown -->
+                    <div class="btn-group mb-4 row mb-3 d-md-block">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="activityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Choose Activity
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-value="Working/Studying">Working/Studying</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="Relaxing">Relaxing</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="Exercising">Exercising</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="Socializing">Socializing</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="Commuting">Commuting</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="Traveling">Traveling</a></li>
+                            <li><a class="dropdown-item" href="#" data-value="Gaming">Gaming</a></li>
+                        </ul>
+                    </div>
+                    <input type="hidden" name="activity" id="activityInput">
+                    <div class = "d-flex justify-content-center">
+                        <button id="capture" type="submit" class="btn btn-primary px-5 py-3 rounded-pill shadow">Analyze</button>
+                    </div>  
+                    <button id="loading" class="btn btn-primary px-5 py-3 rounded-pill shadow" style="display: none;" disabled>
+                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                        Analyzing Image...
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script for handling dropdown selection and image submission -->
+    <script>
+        var video = document.getElementById('video');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+        var captureButton = document.getElementById('capture');
+        var imageDataInput = document.getElementById('image_data');
+        var form = document.getElementById('imageForm');
+        var loadingBtn = document.getElementById('loading');
+        var activityDropdown = document.getElementById('activityDropdown');
+        var activityInput = document.getElementById('activityInput');
+
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function (stream) {
+            video.srcObject = stream;
+            video.play();
+        });
+
+        captureButton.addEventListener('click', function () {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            imageDataInput.value = canvas.toDataURL('image/jpeg'); // Ensure correct MIME type
+            loadingBtn.style.display = 'inline-block';
+            captureButton.style.display = 'none';
+        });
+
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function() {
+                activityInput.value = this.getAttribute('data-value'); // Store the selected activity value
+                activityDropdown.textContent = this.text; // Update the button text to show selected activity
+            });
+        });
+    </script>
+</body>
+{% endblock %}
